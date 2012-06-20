@@ -33,7 +33,7 @@ type digest struct {
 	x              [8]byte // buffer for unprocessed bytes
 }
 
-// New returns a new hash.Hash64 computing SipHash-2-4.
+// New returns a new hash.Hash64 computing SipHash-2-4 with 16-byte key.
 func New(key []byte) hash.Hash64 {
 	d := new(digest)
 	d.k0 = binary.LittleEndian.Uint64(key[0:8])
