@@ -19,9 +19,9 @@ const (
 	BlockSize = 8
 	// The size of hash output in bytes.
 	Size = 8
-	// Number of c iterations.
+	// The number of c iterations.
 	CRounds = 2
-	// Number of d iterations.
+	// The number of d iterations.
 	DRounds = 4
 )
 
@@ -119,8 +119,8 @@ func (d0 *digest) Sum64() uint64 {
 	d := *d0
 
 	var zeros [8]byte
-	d.Write(zeros[:7-d.nx])
 	d.t += uint8(d.nx)
+	d.Write(zeros[:7-d.nx])
 	d.Write([]byte{d.t})
 
 	v0, v1, v2, v3 := d.v0, d.v1, d.v2, d.v3
