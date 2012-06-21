@@ -1,19 +1,68 @@
 package siphash
 
-import "testing"
+import (
+	"bytes"
+	"encoding/binary"
+	"testing"
+)
 
-func TestNew(t *testing.T) {
-	k := []byte{0x00,0x01,0x02,0x03,0x04,0x05,0x06,0x07,0x08,0x09,0x0a,0x0b,0x0c,0x0d,0x0e,0x0f}
-	m := []byte{0x00,0x01,0x02,0x03,0x04,0x05,0x06,0x07,0x08,0x09,0x0a,0x0b,0x0c,0x0d,0x0e}
-	result := uint64(0xa129ca6149be45e5)
-	h := New(k)
-	h.Write(m)
-	if sum := h.Sum64(); sum != result {
-		t.Errorf("expected %x, got %x", result, sum)
+var zeroKey = make([]byte, 16)
+
+var golden = []struct {
+	k []byte
+	m []byte
+	r uint64
+}{
+	{
+		[]byte{0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0a, 0x0b, 0x0c, 0x0d, 0x0e, 0x0f},
+		[]byte{0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0a, 0x0b, 0x0c, 0x0d, 0x0e},
+		0xa129ca6149be45e5,
+	},
+	{
+		zeroKey,
+		[]byte("Hello world"),
+		0xc9e8a3021f3822d9,
+	},
+	{
+		zeroKey,
+		[]byte{}, // zero-length message
+		0x1e924b9d737700d7,
+	},
+	{
+		zeroKey,
+		[]byte("12345678123"),
+		0xf95d77ccdb0649f,
+	},
+	{
+		zeroKey,
+		make([]byte, 8),
+		0xe849e8bb6ffe2567,
+	},
+}
+
+func TestSum64(t *testing.T) {
+	for i, v := range golden {
+		h := New(v.k)
+		h.Write(v.m)
+		if sum := h.Sum64(); sum != v.r {
+			t.Errorf(`%d: expected "%x", got "%x"`, i, v.r, sum)
+		}
 	}
 }
 
-var key = []byte{0x00,0x01,0x02,0x03,0x04,0x05,0x06,0x07,0x08,0x09,0x0a,0x0b,0x0c,0x0d,0x0e,0x0f}
+func TestSum(t *testing.T) {
+	var r [8]byte
+	for i, v := range golden {
+		binary.LittleEndian.PutUint64(r[:], v.r)
+		h := New(v.k)
+		h.Write(v.m)
+		if sum := h.Sum(nil); !bytes.Equal(sum, r[:]) {
+			t.Errorf(`%d: expected "%x", got "%x"`, i, r, sum)
+		}
+	}
+}
+
+var key = zeroKey
 var bench = New(key)
 var buf = make([]byte, 8<<10)
 
