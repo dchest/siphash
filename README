@@ -14,7 +14,7 @@ The slower one is to use the standard hash.Hash64 interface:
 
     h := siphash.New(key)
     h.Write([]byte("Hello")
-    sum := h.Sum(nil) // returns 8-bit []byte
+    sum := h.Sum(nil) // returns 8-byte []byte
 
 or
 
