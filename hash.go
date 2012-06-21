@@ -1,3 +1,10 @@
+// Written in 2012 by Dmitry Chestnykh.
+//
+// To the extent possible under law, the author have dedicated all copyright
+// and related and neighboring rights to this software to the public domain
+// worldwide. This software is distributed without any warranty.
+// http://creativecommons.org/publicdomain/zero/1.0/
+
 package siphash
 
 // Hash returns the 64-bit SipHash-2-4 of the given byte slice with two 64-bit
