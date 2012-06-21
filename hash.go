@@ -88,6 +88,7 @@ func Hash(k0, k1 uint64, p []byte) uint64 {
 	case 1:
 		t |= uint64(p[0])
 	}
+
 	v3 ^= t
 
 	// Round 1.
@@ -127,6 +128,7 @@ func Hash(k0, k1 uint64, p []byte) uint64 {
 	v1 = v1<<17 | v1>>(64-17)
 	v1 ^= v2
 	v2 = v2<<32 | v2>>(64-32)
+
 	v0 ^= t
 
 	// Finalization.
