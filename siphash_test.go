@@ -38,6 +38,11 @@ var golden = []struct {
 		make([]byte, 8),
 		0xe849e8bb6ffe2567,
 	},
+	{
+		zeroKey,
+		make([]byte, 1535),
+		0xe74d1c0ab64b2afa,
+	},
 }
 
 func TestSum64(t *testing.T) {
