@@ -19,10 +19,12 @@ const (
 	BlockSize = 8
 	// The size of hash output in bytes.
 	Size = 8
+
+	// NOTE: Hash() doesn't use the following two constants.
 	// The number of c iterations.
-	CRounds = 2
+	cRounds = 2
 	// The number of d iterations.
-	DRounds = 4
+	dRounds = 4
 )
 
 type digest struct {
@@ -62,7 +64,7 @@ func block(d *digest, p []uint8) {
 		m := binary.LittleEndian.Uint64(p)
 
 		v3 ^= m
-		for i := 0; i < CRounds; i++ {
+		for i := 0; i < cRounds; i++ {
 			v0 += v1
 			v1 = v1<<13 | v1>>(64-13)
 			v1 ^= v0
@@ -126,7 +128,7 @@ func (d0 *digest) Sum64() uint64 {
 
 	v0, v1, v2, v3 := d.v0, d.v1, d.v2, d.v3
 	v2 ^= 0xff
-	for i := 0; i < DRounds; i++ {
+	for i := 0; i < dRounds; i++ {
 		v0 += v1
 		v1 = v1<<13 | v1>>(64-13)
 		v1 ^= v0
