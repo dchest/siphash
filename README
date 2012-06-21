@@ -5,29 +5,27 @@ INSTALLATION
 
     $ go get github.com/dchest/siphash
 
-
 USAGE
 
     import "github.com/dchest/siphash"
 
-    There are two ways to use this package.
-    The slower one is to use the standard hash.Hash64 interface:
+There are two ways to use this package.
+The slower one is to use the standard hash.Hash64 interface:
 
     h := siphash.New(key)
     h.Write([]byte("Hello")
     sum := h.Sum(nil) // returns 8-bit []byte
 
-    or
+or
 
     sum64 := h.Sum64() // returns uint64
 
-    The faster one is to use Hash() function, which takes two uint64 parts of
-    16-byte key and a byte slice, and returns uint64 hash:
+The faster one is to use Hash() function, which takes two uint64 parts of
+16-byte key and a byte slice, and returns uint64 hash:
 
     sum64 := siphash.Hash(key0, key1, []byte("Hello"))
 
-    The keys and output are little-endian.
-
+The keys and output are little-endian.
 
 FUNCTIONS
 
