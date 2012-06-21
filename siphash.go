@@ -9,10 +9,7 @@
 // created by Jean-Philippe Aumasson and Daniel J. Bernstein.
 package siphash
 
-import (
-	"encoding/binary"
-	"hash"
-)
+import "hash"
 
 const (
 	// The block size of hash algorithm in bytes.
@@ -38,8 +35,13 @@ type digest struct {
 // New returns a new hash.Hash64 computing SipHash-2-4 with 16-byte key.
 func New(key []byte) hash.Hash64 {
 	d := new(digest)
-	d.k0 = binary.LittleEndian.Uint64(key[0:8])
-	d.k1 = binary.LittleEndian.Uint64(key[8:16])
+
+	d.k0 = uint64(key[0]) | uint64(key[1])<<8 | uint64(key[2])<<16 | uint64(key[3])<<24 |
+		uint64(key[4])<<32 | uint64(key[5])<<40 | uint64(key[6])<<48 | uint64(key[7])<<56
+
+	d.k1 = uint64(key[8]) | uint64(key[9])<<8 | uint64(key[10])<<16 | uint64(key[11])<<24 |
+		uint64(key[12])<<32 | uint64(key[13])<<40 | uint64(key[14])<<48 | uint64(key[15])<<56
+
 	d.Reset()
 	return d
 }
@@ -61,7 +63,8 @@ func block(d *digest, p []uint8) {
 	v0, v1, v2, v3 := d.v0, d.v1, d.v2, d.v3
 
 	for len(p) >= BlockSize {
-		m := binary.LittleEndian.Uint64(p)
+		m := uint64(p[0]) | uint64(p[1])<<8 | uint64(p[2])<<16 | uint64(p[3])<<24 |
+			uint64(p[4])<<32 | uint64(p[5])<<40 | uint64(p[6])<<48 | uint64(p[7])<<56
 
 		v3 ^= m
 		for i := 0; i < cRounds; i++ {
@@ -151,7 +154,8 @@ func (d0 *digest) Sum64() uint64 {
 }
 
 func (d *digest) Sum(in []byte) []byte {
-	var tmp [8]byte
-	binary.LittleEndian.PutUint64(tmp[:], d.Sum64())
-	return append(in, tmp[:]...)
+	v := d.Sum64()
+	in = append(in, byte(v), byte(v>>8), byte(v>>16), byte(v>>24),
+		byte(v>>32), byte(v>>40), byte(v>>48), byte(v>>56))
+	return in
 }
