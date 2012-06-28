@@ -176,6 +176,22 @@ func TestHash(t *testing.T) {
 			t.Errorf(`%d: expected "%x", got "%x"`, i, v.r, sum)
 		}
 	}
+
+	var k [16]byte
+	var in [64]byte
+	for i := range k {
+		k[i] = byte(i)
+	}
+	k0 = binary.LittleEndian.Uint64(k[0:8])
+	k1 = binary.LittleEndian.Uint64(k[8:16])
+
+	for i := 0; i < 64; i++ {
+		in[i] = byte(i)
+		ref := binary.LittleEndian.Uint64(goldenRef[i])
+		if sum := Hash(k0, k1, in[:i]); sum != ref {
+			t.Errorf(`%d: expected "%x", got "%x"`, i, ref, sum)
+		}
+	}
 }
 
 var key = zeroKey
