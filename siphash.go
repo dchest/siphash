@@ -103,7 +103,6 @@ func blocks(d *digest, p []uint8) {
 		v0 ^= m
 
 		p = p[BlockSize:]
-		d.t += BlockSize
 	}
 
 	d.v0, d.v1, d.v2, d.v3 = v0, v1, v2, v3
@@ -111,6 +110,7 @@ func blocks(d *digest, p []uint8) {
 
 func (d *digest) Write(p []byte) (nn int, err error) {
 	nn = len(p)
+	d.t += uint8(nn)
 	if d.nx > 0 {
 		n := len(p)
 		if n > BlockSize-d.nx {
@@ -141,7 +141,7 @@ func (d0 *digest) Sum64() uint64 {
 	for i := d.nx; i < BlockSize-1; i++ {
 		d.x[i] = 0
 	}
-	d.x[7] = d.t + uint8(d.nx)
+	d.x[7] = d.t
 	blocks(&d, d.x[:])
 
 	v0, v1, v2, v3 := d.v0, d.v1, d.v2, d.v3
