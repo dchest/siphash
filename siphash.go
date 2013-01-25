@@ -16,12 +16,6 @@ const (
 	BlockSize = 8
 	// The size of hash output in bytes.
 	Size = 8
-
-	// NOTE: Hash() doesn't use the following two constants.
-	// The number of c iterations.
-	cRounds = 2
-	// The number of d iterations.
-	dRounds = 4
 )
 
 type digest struct {
@@ -59,7 +53,7 @@ func (d *digest) Size() int { return Size }
 
 func (d *digest) BlockSize() int { return BlockSize }
 
-func block(d *digest, p []uint8) {
+func blocks(d *digest, p []uint8) {
 	v0, v1, v2, v3 := d.v0, d.v1, d.v2, d.v3
 
 	for len(p) >= BlockSize {
@@ -67,25 +61,45 @@ func block(d *digest, p []uint8) {
 			uint64(p[4])<<32 | uint64(p[5])<<40 | uint64(p[6])<<48 | uint64(p[7])<<56
 
 		v3 ^= m
-		for i := 0; i < cRounds; i++ {
-			v0 += v1
-			v1 = v1<<13 | v1>>(64-13)
-			v1 ^= v0
-			v0 = v0<<32 | v0>>(64-32)
 
-			v2 += v3
-			v3 = v3<<16 | v3>>(64-16)
-			v3 ^= v2
+		// Round 1.
+		v0 += v1
+		v1 = v1<<13 | v1>>(64-13)
+		v1 ^= v0
+		v0 = v0<<32 | v0>>(64-32)
 
-			v0 += v3
-			v3 = v3<<21 | v3>>(64-21)
-			v3 ^= v0
+		v2 += v3
+		v3 = v3<<16 | v3>>(64-16)
+		v3 ^= v2
 
-			v2 += v1
-			v1 = v1<<17 | v1>>(64-17)
-			v1 ^= v2
-			v2 = v2<<32 | v2>>(64-32)
-		}
+		v0 += v3
+		v3 = v3<<21 | v3>>(64-21)
+		v3 ^= v0
+
+		v2 += v1
+		v1 = v1<<17 | v1>>(64-17)
+		v1 ^= v2
+		v2 = v2<<32 | v2>>(64-32)
+
+		// Round 2.
+		v0 += v1
+		v1 = v1<<13 | v1>>(64-13)
+		v1 ^= v0
+		v0 = v0<<32 | v0>>(64-32)
+
+		v2 += v3
+		v3 = v3<<16 | v3>>(64-16)
+		v3 ^= v2
+
+		v0 += v3
+		v3 = v3<<21 | v3>>(64-21)
+		v3 ^= v0
+
+		v2 += v1
+		v1 = v1<<17 | v1>>(64-17)
+		v1 ^= v2
+		v2 = v2<<32 | v2>>(64-32)
+
 		v0 ^= m
 
 		p = p[BlockSize:]
@@ -104,14 +118,14 @@ func (d *digest) Write(p []byte) (nn int, err error) {
 		}
 		d.nx += copy(d.x[d.nx:], p)
 		if d.nx == BlockSize {
-			block(d, d.x[:])
+			blocks(d, d.x[:])
 			d.nx = 0
 		}
 		p = p[n:]
 	}
 	if len(p) >= BlockSize {
 		n := len(p) &^ (BlockSize - 1)
-		block(d, p[:n])
+		blocks(d, p[:n])
 		p = p[n:]
 	}
 	if len(p) > 0 {
@@ -124,32 +138,91 @@ func (d0 *digest) Sum64() uint64 {
 	// Make a copy of d0 so that caller can keep writing and summing.
 	d := *d0
 
-	var zeros [8]byte
-	d.t += uint8(d.nx)
-	d.Write(zeros[:7-d.nx])
-	d.Write([]byte{d.t})
+	for i := d.nx; i < BlockSize-1; i++ {
+		d.x[i] = 0
+	}
+	d.x[7] = d.t + uint8(d.nx)
+	blocks(&d, d.x[:])
 
 	v0, v1, v2, v3 := d.v0, d.v1, d.v2, d.v3
 	v2 ^= 0xff
-	for i := 0; i < dRounds; i++ {
-		v0 += v1
-		v1 = v1<<13 | v1>>(64-13)
-		v1 ^= v0
-		v0 = v0<<32 | v0>>(64-32)
 
-		v2 += v3
-		v3 = v3<<16 | v3>>(64-16)
-		v3 ^= v2
+	// Round 1.
+	v0 += v1
+	v1 = v1<<13 | v1>>(64-13)
+	v1 ^= v0
+	v0 = v0<<32 | v0>>(64-32)
 
-		v0 += v3
-		v3 = v3<<21 | v3>>(64-21)
-		v3 ^= v0
+	v2 += v3
+	v3 = v3<<16 | v3>>(64-16)
+	v3 ^= v2
 
-		v2 += v1
-		v1 = v1<<17 | v1>>(64-17)
-		v1 ^= v2
-		v2 = v2<<32 | v2>>(64-32)
-	}
+	v0 += v3
+	v3 = v3<<21 | v3>>(64-21)
+	v3 ^= v0
+
+	v2 += v1
+	v1 = v1<<17 | v1>>(64-17)
+	v1 ^= v2
+	v2 = v2<<32 | v2>>(64-32)
+
+	// Round 2.
+	v0 += v1
+	v1 = v1<<13 | v1>>(64-13)
+	v1 ^= v0
+	v0 = v0<<32 | v0>>(64-32)
+
+	v2 += v3
+	v3 = v3<<16 | v3>>(64-16)
+	v3 ^= v2
+
+	v0 += v3
+	v3 = v3<<21 | v3>>(64-21)
+	v3 ^= v0
+
+	v2 += v1
+	v1 = v1<<17 | v1>>(64-17)
+	v1 ^= v2
+	v2 = v2<<32 | v2>>(64-32)
+
+	// Round 3.
+	v0 += v1
+	v1 = v1<<13 | v1>>(64-13)
+	v1 ^= v0
+	v0 = v0<<32 | v0>>(64-32)
+
+	v2 += v3
+	v3 = v3<<16 | v3>>(64-16)
+	v3 ^= v2
+
+	v0 += v3
+	v3 = v3<<21 | v3>>(64-21)
+	v3 ^= v0
+
+	v2 += v1
+	v1 = v1<<17 | v1>>(64-17)
+	v1 ^= v2
+	v2 = v2<<32 | v2>>(64-32)
+
+	// Round 4.
+	v0 += v1
+	v1 = v1<<13 | v1>>(64-13)
+	v1 ^= v0
+	v0 = v0<<32 | v0>>(64-32)
+
+	v2 += v3
+	v3 = v3<<16 | v3>>(64-16)
+	v3 ^= v2
+
+	v0 += v3
+	v3 = v3<<21 | v3>>(64-21)
+	v3 ^= v0
+
+	v2 += v1
+	v1 = v1<<17 | v1>>(64-17)
+	v1 ^= v2
+	v2 = v2<<32 | v2>>(64-32)
+
 	return v0 ^ v1 ^ v2 ^ v3
 }
 
