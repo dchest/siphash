@@ -1,4 +1,4 @@
-// +build !amd64
+// +build !amd64 appengine
 
 // Written in 2012 by Dmitry Chestnykh.
 //
