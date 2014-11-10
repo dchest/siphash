@@ -1,11 +1,18 @@
+SipHash (Go)
+============
+
+[![Build Status](https://travis-ci.org/dchest/siphash.svg)](https://travis-ci.org/dchest/siphash)
+
 Go implementation of SipHash-2-4, a fast short-input PRF created by
 Jean-Philippe Aumasson and Daniel J. Bernstein (http://131002.net/siphash/).
 
-INSTALLATION
+
+## Installation
 
     $ go get github.com/dchest/siphash
 
-USAGE
+
+## Usage
 
     import "github.com/dchest/siphash"
 
@@ -27,32 +34,33 @@ The faster one is to use Hash() function, which takes two uint64 parts of
 
 The keys and output are little-endian.
 
-FUNCTIONS
 
-func Hash(k0, k1 uint64, p []byte) uint64
+## Functions
+
+### func Hash(k0, k1 uint64, p []byte) uint64
 
     Hash returns the 64-bit SipHash-2-4 of the given byte slice with two
     64-bit parts of 128-bit key: k0 and k1.
 
-func Hash128(k0, k1 uint64, p []byte) (uint64, uint64)
+### func Hash128(k0, k1 uint64, p []byte) (uint64, uint64)
 
     Hash128 returns the 128-bit SipHash-2-4 of the given byte slice with two
     64-bit parts of 128-bit key: k0 and k1.
 
     Note that 128-bit SipHash is considered experimental by SipHash authors at this time.
 
-func New(key []byte) hash.Hash64
+### func New(key []byte) hash.Hash64
 
     New returns a new hash.Hash64 computing SipHash-2-4 with 16-byte key.
 
-func New128(key []byte) hash.Hash
+### func New128(key []byte) hash.Hash
 
     New128 returns a new hash.Hash computing SipHash-2-4 with 16-byte key and 16-byte output.
 
     Note that 16-byte output is considered experimental by SipHash authors at this time.
 
 
-PUBLIC DOMAIN DEDICATION
+## Public domain dedication
 
 Written by Dmitry Chestnykh and Damian Gryski.
 
