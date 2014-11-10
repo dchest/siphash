@@ -39,25 +39,25 @@ The keys and output are little-endian.
 
 ### func Hash(k0, k1 uint64, p []byte) uint64
 
-    Hash returns the 64-bit SipHash-2-4 of the given byte slice with two
-    64-bit parts of 128-bit key: k0 and k1.
+Hash returns the 64-bit SipHash-2-4 of the given byte slice with two
+64-bit parts of 128-bit key: k0 and k1.
 
 ### func Hash128(k0, k1 uint64, p []byte) (uint64, uint64)
 
-    Hash128 returns the 128-bit SipHash-2-4 of the given byte slice with two
-    64-bit parts of 128-bit key: k0 and k1.
+Hash128 returns the 128-bit SipHash-2-4 of the given byte slice with two
+64-bit parts of 128-bit key: k0 and k1.
 
-    Note that 128-bit SipHash is considered experimental by SipHash authors at this time.
+Note that 128-bit SipHash is considered experimental by SipHash authors at this time.
 
 ### func New(key []byte) hash.Hash64
 
-    New returns a new hash.Hash64 computing SipHash-2-4 with 16-byte key.
+New returns a new hash.Hash64 computing SipHash-2-4 with 16-byte key.
 
 ### func New128(key []byte) hash.Hash
 
-    New128 returns a new hash.Hash computing SipHash-2-4 with 16-byte key and 16-byte output.
+New128 returns a new hash.Hash computing SipHash-2-4 with 16-byte key and 16-byte output.
 
-    Note that 16-byte output is considered experimental by SipHash authors at this time.
+Note that 16-byte output is considered experimental by SipHash authors at this time.
 
 
 ## Public domain dedication
