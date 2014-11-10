@@ -234,6 +234,23 @@ func TestSum(t *testing.T) {
 	}
 }
 
+func TestSum128(t *testing.T) {
+	var k [16]byte
+	var in [64]byte
+	for i := range k {
+		k[i] = byte(i)
+	}
+
+	for i := 0; i < 64; i++ {
+		in[i] = byte(i)
+		h := New128(k[:])
+		h.Write(in[:i])
+		if sum := h.Sum(nil); !bytes.Equal(sum, goldenRef128[i]) {
+			t.Errorf(`%d: expected "%x", got "%x"`, i, goldenRef128[i], sum)
+		}
+	}
+}
+
 func TestHash(t *testing.T) {
 	var k0, k1 uint64
 	for i, v := range golden {
@@ -282,10 +299,13 @@ func TestHash128(t *testing.T) {
 	}
 }
 
-var key = zeroKey
-var key0, key1 uint64
-var bench = New(key)
-var buf = make([]byte, 8<<10)
+var (
+	key = zeroKey
+	key0, key1 uint64
+	bench = New(key)
+	bench128 = New128(key)
+	buf = make([]byte, 8<<10)
+)
 
 func BenchmarkHash8(b *testing.B) {
 	b.SetBytes(8)
@@ -445,5 +465,68 @@ func BenchmarkFull8K(b *testing.B) {
 		bench.Reset()
 		bench.Write(buf)
 		bench.Sum64()
+	}
+}
+
+func BenchmarkFull128_8(b *testing.B) {
+	b.SetBytes(8)
+	for i := 0; i < b.N; i++ {
+		bench128.Reset()
+		bench128.Write(buf[:8])
+		bench128.Sum(nil)
+	}
+}
+
+func BenchmarkFull128_16(b *testing.B) {
+	b.SetBytes(16)
+	for i := 0; i < b.N; i++ {
+		bench128.Reset()
+		bench128.Write(buf[:16])
+		bench128.Sum(nil)
+	}
+}
+
+func BenchmarkFull128_40(b *testing.B) {
+	b.SetBytes(24)
+	for i := 0; i < b.N; i++ {
+		bench128.Reset()
+		bench128.Write(buf[:16])
+		bench128.Sum(nil)
+	}
+}
+
+func BenchmarkFull128_64(b *testing.B) {
+	b.SetBytes(64)
+	for i := 0; i < b.N; i++ {
+		bench128.Reset()
+		bench128.Write(buf[:64])
+		bench128.Sum(nil)
+	}
+}
+
+func BenchmarkFull128_128(b *testing.B) {
+	b.SetBytes(128)
+	for i := 0; i < b.N; i++ {
+		bench128.Reset()
+		bench128.Write(buf[:64])
+		bench128.Sum(nil)
+	}
+}
+
+func BenchmarkFull128_1K(b *testing.B) {
+	b.SetBytes(1024)
+	for i := 0; i < b.N; i++ {
+		bench128.Reset()
+		bench128.Write(buf[:1024])
+		bench128.Sum(nil)
+	}
+}
+
+func BenchmarkFull128_8K(b *testing.B) {
+	b.SetBytes(int64(len(buf)))
+	for i := 0; i < b.N; i++ {
+		bench128.Reset()
+		bench128.Write(buf)
+		bench128.Sum(nil)
 	}
 }
