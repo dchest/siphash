@@ -12,13 +12,13 @@ package siphash
 import "hash"
 
 const (
-	// The block size of hash algorithm in bytes.
+	// BlockSize is the block size of hash algorithm in bytes.
 	BlockSize = 8
 
-	// The size of hash output in bytes.
+	// Size is the size of hash output in bytes.
 	Size = 8
 
-	// The size of 128-bit hash output in bytes.
+	// Size128 is the size of 128-bit hash output in bytes.
 	Size128 = 16
 )
 
