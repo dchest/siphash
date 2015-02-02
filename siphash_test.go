@@ -300,11 +300,11 @@ func TestHash128(t *testing.T) {
 }
 
 var (
-	key = zeroKey
+	key        = zeroKey
 	key0, key1 uint64
-	bench = New(key)
-	bench128 = New128(key)
-	buf = make([]byte, 8<<10)
+	bench      = New(key)
+	bench128   = New128(key)
+	buf        = make([]byte, 8<<10)
 )
 
 func BenchmarkHash8(b *testing.B) {
