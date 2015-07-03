@@ -6,6 +6,9 @@ SipHash (Go)
 Go implementation of SipHash-2-4, a fast short-input PRF created by
 Jean-Philippe Aumasson and Daniel J. Bernstein (http://131002.net/siphash/).
 
+**A stable version of this package with commercial support is available
+through StableLib: <https://stablelib.com/v1/crypto/siphash/>**
+
 
 ## Installation
 
