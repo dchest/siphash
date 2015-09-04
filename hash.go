@@ -1,4 +1,4 @@
-// +build !amd64 appengine
+// +build !amd64 appengine gccgo
 
 // Written in 2012 by Dmitry Chestnykh.
 //

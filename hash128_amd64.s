@@ -1,4 +1,4 @@
-// +build amd64,!appengine
+// +build amd64,!appengine,!gccgo
 
 // This is a translation of the gcc output of FloodyBerry's pure-C public
 // domain siphash implementation at https://github.com/floodyberry/siphash
