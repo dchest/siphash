@@ -11,10 +11,17 @@
 
 package siphash
 
+//go:noescape
+
 // Hash returns the 64-bit SipHash-2-4 of the given byte slice with two 64-bit
 // parts of 128-bit key: k0 and k1.
 func Hash(k0, k1 uint64, b []byte) uint64
 
+//go:noescape
+
 // Hash128 returns the 128-bit SipHash-2-4 of the given byte slice with two
 // 64-bit parts of 128-bit key: k0 and k1.
 func Hash128(k0, k1 uint64, b []byte) (uint64, uint64)
+
+//go:noescape
+func blocks(d *digest, p []uint8)
