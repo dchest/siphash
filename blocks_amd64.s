@@ -43,3 +43,45 @@ end:
 	MOVQ R11, 16(BX)
 	MOVQ R12, 24(BX)
 	RET
+
+// once(d *digest)
+TEXT ·once(SB),4,$0-8
+	MOVQ d+0(FP), BX
+	MOVQ 0(BX), R9		// R9 = v0
+	MOVQ 8(BX), R10		// R10 = v1
+	MOVQ 16(BX), R11	// R11 = v2
+	MOVQ 24(BX), R12	// R12 = v3
+	MOVQ 48(BX), CX		// CX = d.x[:]
+	XORQ CX, R12
+	ROUND(R9, R10, R11, R12)
+	ROUND(R9, R10, R11, R12)
+	XORQ CX, R9
+	MOVQ R9, 0(BX)
+	MOVQ R10, 8(BX)
+	MOVQ R11, 16(BX)
+	MOVQ R12, 24(BX)
+	RET
+
+// finalize(d *digest) uint64
+TEXT ·finalize(SB),4,$0-16
+	MOVQ d+0(FP), BX
+	MOVQ 0(BX), R9		// R9 = v0
+	MOVQ 8(BX), R10		// R10 = v1
+	MOVQ 16(BX), R11	// R11 = v2
+	MOVQ 24(BX), R12	// R12 = v3
+	MOVQ 48(BX), CX		// CX = d.x[:]
+	XORQ CX, R12
+	ROUND(R9, R10, R11, R12)
+	ROUND(R9, R10, R11, R12)
+	XORQ CX, R9
+	NOTB R11
+	ROUND(R9, R10, R11, R12)
+	ROUND(R9, R10, R11, R12)
+	ROUND(R9, R10, R11, R12)
+	ROUND(R9, R10, R11, R12)
+	XORQ R12, R11
+	XORQ R10, R9
+	XORQ R11, R9
+	MOVQ R9, ret+8(FP)
+	RET
+

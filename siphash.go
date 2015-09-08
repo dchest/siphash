@@ -25,10 +25,10 @@ const (
 type digest struct {
 	v0, v1, v2, v3 uint64  // state
 	k0, k1         uint64  // two parts of key
-	t              uint8   // message bytes counter (mod 256)
-	nx             int     // number of bytes in buffer x
 	x              [8]byte // buffer for unprocessed bytes
+	nx             int     // number of bytes in buffer x
 	size           int     // output size in bytes (8 or 16)
+	t              uint8   // message bytes counter (mod 256)
 }
 
 // newDigest returns a new digest with the given output size in bytes (must be 8 or 16).
@@ -84,7 +84,7 @@ func (d *digest) Write(p []byte) (nn int, err error) {
 		}
 		d.nx += copy(d.x[d.nx:], p)
 		if d.nx == BlockSize {
-			blocks(d, d.x[:])
+			once(d)
 			d.nx = 0
 		}
 		p = p[n:]
@@ -100,96 +100,12 @@ func (d *digest) Write(p []byte) (nn int, err error) {
 	return
 }
 
-func (d0 *digest) Sum64() uint64 {
-	// Make a copy of d0 so that caller can keep writing and summing.
-	d := *d0
-
+func (d *digest) Sum64() uint64 {
 	for i := d.nx; i < BlockSize-1; i++ {
 		d.x[i] = 0
 	}
 	d.x[7] = d.t
-	blocks(&d, d.x[:])
-
-	v0, v1, v2, v3 := d.v0, d.v1, d.v2, d.v3
-	v2 ^= 0xff
-
-	// Round 1.
-	v0 += v1
-	v1 = v1<<13 | v1>>(64-13)
-	v1 ^= v0
-	v0 = v0<<32 | v0>>(64-32)
-
-	v2 += v3
-	v3 = v3<<16 | v3>>(64-16)
-	v3 ^= v2
-
-	v0 += v3
-	v3 = v3<<21 | v3>>(64-21)
-	v3 ^= v0
-
-	v2 += v1
-	v1 = v1<<17 | v1>>(64-17)
-	v1 ^= v2
-	v2 = v2<<32 | v2>>(64-32)
-
-	// Round 2.
-	v0 += v1
-	v1 = v1<<13 | v1>>(64-13)
-	v1 ^= v0
-	v0 = v0<<32 | v0>>(64-32)
-
-	v2 += v3
-	v3 = v3<<16 | v3>>(64-16)
-	v3 ^= v2
-
-	v0 += v3
-	v3 = v3<<21 | v3>>(64-21)
-	v3 ^= v0
-
-	v2 += v1
-	v1 = v1<<17 | v1>>(64-17)
-	v1 ^= v2
-	v2 = v2<<32 | v2>>(64-32)
-
-	// Round 3.
-	v0 += v1
-	v1 = v1<<13 | v1>>(64-13)
-	v1 ^= v0
-	v0 = v0<<32 | v0>>(64-32)
-
-	v2 += v3
-	v3 = v3<<16 | v3>>(64-16)
-	v3 ^= v2
-
-	v0 += v3
-	v3 = v3<<21 | v3>>(64-21)
-	v3 ^= v0
-
-	v2 += v1
-	v1 = v1<<17 | v1>>(64-17)
-	v1 ^= v2
-	v2 = v2<<32 | v2>>(64-32)
-
-	// Round 4.
-	v0 += v1
-	v1 = v1<<13 | v1>>(64-13)
-	v1 ^= v0
-	v0 = v0<<32 | v0>>(64-32)
-
-	v2 += v3
-	v3 = v3<<16 | v3>>(64-16)
-	v3 ^= v2
-
-	v0 += v3
-	v3 = v3<<21 | v3>>(64-21)
-	v3 ^= v0
-
-	v2 += v1
-	v1 = v1<<17 | v1>>(64-17)
-	v1 ^= v2
-	v2 = v2<<32 | v2>>(64-32)
-
-	return v0 ^ v1 ^ v2 ^ v3
+	return finalize(d)
 }
 
 func (d0 *digest) sum128() (r0, r1 uint64) {
