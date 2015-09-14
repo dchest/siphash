@@ -25,3 +25,9 @@ func Hash128(k0, k1 uint64, b []byte) (uint64, uint64)
 
 //go:noescape
 func blocks(d *digest, p []uint8)
+
+//go:noescape
+func finalize(d *digest) uint64
+
+//go:noescape
+func once(d *digest)
