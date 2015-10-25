@@ -234,6 +234,26 @@ func TestSum(t *testing.T) {
 	}
 }
 
+func TestSumUnaligned(t *testing.T) {
+	const align = 8
+	var k [16]byte
+	var in [64 + align]byte
+	for i := range k {
+		k[i] = byte(i)
+	}
+
+	for a := 1; a < align; a++ {
+		for i := 0; i < 64; i++ {
+			in[a+i] = byte(i)
+			h := New(k[:])
+			h.Write(in[a : a+i])
+			if sum := h.Sum(nil); !bytes.Equal(sum, goldenRef[i]) {
+				t.Errorf(`%d: expected "%x", got "%x"`, i, goldenRef[i], sum)
+			}
+		}
+	}
+}
+
 func TestSum128(t *testing.T) {
 	var k [16]byte
 	var in [64]byte
@@ -274,6 +294,29 @@ func TestHash(t *testing.T) {
 		ref := binary.LittleEndian.Uint64(goldenRef[i])
 		if sum := Hash(k0, k1, in[:i]); sum != ref {
 			t.Errorf(`%d: expected "%x", got "%x"`, i, ref, sum)
+		}
+	}
+}
+
+func TestHashUnaligned(t *testing.T) {
+	const align = 8
+	var k0, k1 uint64
+	var k [16]byte
+	var in [64 + align]byte
+
+	for i := range k {
+		k[i] = byte(i)
+	}
+	k0 = binary.LittleEndian.Uint64(k[0:8])
+	k1 = binary.LittleEndian.Uint64(k[8:16])
+
+	for a := 1; a < align; a++ {
+		for i := 0; i < 64; i++ {
+			in[a+i] = byte(i)
+			ref := binary.LittleEndian.Uint64(goldenRef[i])
+			if sum := Hash(k0, k1, in[a:a+i]); sum != ref {
+				t.Errorf(`%d: expected "%x", got "%x"`, i, ref, sum)
+			}
 		}
 	}
 }
@@ -346,6 +389,13 @@ func BenchmarkHash1K(b *testing.B) {
 	b.SetBytes(1024)
 	for i := 0; i < b.N; i++ {
 		Hash(key0, key1, buf[:1024])
+	}
+}
+
+func BenchmarkHash1Kunaligned(b *testing.B) {
+	b.SetBytes(1024)
+	for i := 0; i < b.N; i++ {
+		Hash(key0, key1, buf[1:1025])
 	}
 }
 
@@ -455,6 +505,15 @@ func BenchmarkFull1K(b *testing.B) {
 	for i := 0; i < b.N; i++ {
 		bench.Reset()
 		bench.Write(buf[:1024])
+		bench.Sum64()
+	}
+}
+
+func BenchmarkFull1Kunaligned(b *testing.B) {
+	b.SetBytes(1024)
+	for i := 0; i < b.N; i++ {
+		bench.Reset()
+		bench.Write(buf[1:1025])
 		bench.Sum64()
 	}
 }
