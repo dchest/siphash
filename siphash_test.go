@@ -392,6 +392,13 @@ func BenchmarkHash1K(b *testing.B) {
 	}
 }
 
+func BenchmarkHash1Kunaligned(b *testing.B) {
+	b.SetBytes(1024)
+	for i := 0; i < b.N; i++ {
+		Hash(key0, key1, buf[1:1025])
+	}
+}
+
 func BenchmarkHash8K(b *testing.B) {
 	b.SetBytes(int64(len(buf)))
 	for i := 0; i < b.N; i++ {
@@ -498,6 +505,15 @@ func BenchmarkFull1K(b *testing.B) {
 	for i := 0; i < b.N; i++ {
 		bench.Reset()
 		bench.Write(buf[:1024])
+		bench.Sum64()
+	}
+}
+
+func BenchmarkFull1Kunaligned(b *testing.B) {
+	b.SetBytes(1024)
+	for i := 0; i < b.N; i++ {
+		bench.Reset()
+		bench.Write(buf[1:1025])
 		bench.Sum64()
 	}
 }
