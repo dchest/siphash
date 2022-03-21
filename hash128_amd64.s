@@ -1,3 +1,4 @@
+//go:build amd64 && !appengine && !gccgo
 // +build amd64,!appengine,!gccgo
 
 // This is a translation of the gcc output of FloodyBerry's pure-C public
