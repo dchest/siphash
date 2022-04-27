@@ -1,5 +1,4 @@
 //go:build (!arm && !amd64) || appengine || gccgo
-// +build !arm,!amd64 appengine gccgo
 
 // Written in 2012 by Dmitry Chestnykh.
 //
@@ -10,9 +9,9 @@
 
 package siphash
 
-// Hash returns the 64-bit SipHash-2-4 of the given byte slice with two 64-bit
+// HashG returns the 64-bit SipHash-2-4 of the given string or byte slice with two 64-bit
 // parts of 128-bit key: k0 and k1.
-func Hash(k0, k1 uint64, p []byte) uint64 {
+func HashG[T byteseq](k0, k1 uint64, p T) uint64 {
 	// Initialization.
 	v0 := k0 ^ 0x736f6d6570736575
 	v1 := k1 ^ 0x646f72616e646f6d

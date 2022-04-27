@@ -1,5 +1,4 @@
 //go:build amd64 && !appengine && !gccgo
-// +build amd64,!appengine,!gccgo
 
 // This is a translation of the gcc output of FloodyBerry's pure-C public
 // domain siphash implementation at https://github.com/floodyberry/siphash
@@ -11,8 +10,8 @@
 // CX = v2
 // DX = v3
 
-// func Hash128(k0, k1 uint64, b []byte) (r0 uint64, r1 uint64)
-TEXT	·Hash128(SB),4,$0-56
+// func _hash128(k0, k1 uint64, b string) (r0 uint64, r1 uint64)
+TEXT	·_hash128(SB),4,$0-56
 	MOVQ	k0+0(FP),CX
 	MOVQ	$0x736F6D6570736575,R9
 	MOVQ	k1+8(FP),DI
@@ -216,7 +215,7 @@ afterSwitch:
 	XORQ	AX,BX
 	XORQ	DX,BX
 	XORQ	CX,BX
-	MOVQ	BX,ret+40(FP)
+	MOVQ	BX,ret+32(FP)
 
 	// Start the second finalization round
 
@@ -283,6 +282,6 @@ afterSwitch:
 	XORQ	AX,BX
 	XORQ	DX,BX
 	XORQ	CX,BX
-	MOVQ	BX,ret1+48(FP)
+	MOVQ	BX,ret1+40(FP)
 
 	RET

@@ -1,10 +1,9 @@
 //go:build amd64 && !appengine && !gccgo
-// +build amd64,!appengine,!gccgo
 
 // This is a translation of the gcc output of FloodyBerry's pure-C public
 // domain siphash implementation at https://github.com/floodyberry/siphash
-// func Hash(k0, k1 uint64, b []byte) uint64
-TEXT	·Hash(SB),4,$0-48
+// func hash(k0, k1 uint64, b string) uint64
+TEXT	·_hash(SB),4,$0-48
 	MOVQ	k0+0(FP),CX
 	MOVQ	$0x736F6D6570736575,R9
 	MOVQ	k1+8(FP),DI
@@ -193,5 +192,5 @@ afterSwitch:
 	RORQ	$0x20,CX
 	XORQ	DX,AX
 	XORQ	CX,AX
-	MOVQ	AX,ret+40(FP)
+	MOVQ	AX,ret+32(FP)
 	RET

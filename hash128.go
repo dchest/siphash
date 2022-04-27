@@ -1,5 +1,4 @@
 //go:build (!arm && !amd64) || appengine || gccgo
-// +build !arm,!amd64 appengine gccgo
 
 // Written in 2012 by Dmitry Chestnykh.
 // Modifications 2014 for 128-bit hash function by Damian Gryski.
@@ -11,11 +10,11 @@
 
 package siphash
 
-// Hash returns the 128-bit SipHash-2-4 of the given byte slice with two 64-bit
+// Hash128G returns the 128-bit SipHash-2-4 of the given string or byte slice with two 64-bit
 // parts of 128-bit key: k0 and k1.
 //
 // Note that 128-bit SipHash is considered experimental by SipHash authors at this time.
-func Hash128(k0, k1 uint64, p []byte) (uint64, uint64) {
+func Hash128G[T byteseq](k0, k1 uint64, p T) (uint64, uint64) {
 	// Initialization.
 	v0 := k0 ^ 0x736f6d6570736575
 	v1 := k1 ^ 0x646f72616e646f6d

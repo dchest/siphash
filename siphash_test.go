@@ -296,6 +296,12 @@ func TestHash(t *testing.T) {
 		if sum := Hash(k0, k1, in[:i]); sum != ref {
 			t.Errorf(`%d: expected "%x", got "%x"`, i, ref, sum)
 		}
+		if sum := HashG(k0, k1, in[:i]); sum != ref {
+			t.Errorf(`HashG %d: expected "%x", got "%x"`, i, ref, sum)
+		}
+		if sum := HashG(k0, k1, string(in[:i])); sum != ref {
+			t.Errorf(`HashG_string %d: expected "%x", got "%x"`, i, ref, sum)
+		}
 	}
 }
 
@@ -339,6 +345,12 @@ func TestHash128(t *testing.T) {
 		ref1 := binary.LittleEndian.Uint64(goldenRef128[i][8:])
 		if sum0, sum1 := Hash128(k0, k1, in[:i]); sum0 != ref0 || sum1 != ref1 {
 			t.Errorf(`%d: expected "%x, %x", got "%x, %x"`, i, ref0, ref1, sum0, sum1)
+		}
+		if sum0, sum1 := Hash128G(k0, k1, in[:i]); sum0 != ref0 || sum1 != ref1 {
+			t.Errorf(`Hash128G %d: expected "%x, %x", got "%x, %x"`, i, ref0, ref1, sum0, sum1)
+		}
+		if sum0, sum1 := Hash128G(k0, k1, string(in[:i])); sum0 != ref0 || sum1 != ref1 {
+			t.Errorf(`Hash128G_string %d: expected "%x, %x", got "%x, %x"`, i, ref0, ref1, sum0, sum1)
 		}
 	}
 }
@@ -386,6 +398,23 @@ func TestAlign(t *testing.T) {
 		if reshi != want128[i*2+1] {
 			t.Fatalf("Expected %v got %v", want128[i*2+1], reshi)
 		}
+
+		reslo, reshi = Hash128G(k0, k1, d[i:])
+		if reslo != want128[i*2] {
+			t.Fatalf("Hash128G Expected %v got %v", want128[i*2], reslo)
+		}
+		if reshi != want128[i*2+1] {
+			t.Fatalf("Hash128G Expected %v got %v", want128[i*2+1], reshi)
+		}
+
+		reslo, reshi = Hash128G(k0, k1, string(d[i:]))
+		if reslo != want128[i*2] {
+			t.Fatalf("Hash128G_string Expected %v got %v", want128[i*2], reslo)
+		}
+		if reshi != want128[i*2+1] {
+			t.Fatalf("Hash128G_string Expected %v got %v", want128[i*2+1], reshi)
+		}
+
 		dig := newDigest(Size, k[:])
 		dig.Write(d[i:])
 		res = dig.Sum64()
@@ -415,105 +444,105 @@ var (
 func BenchmarkHash8(b *testing.B) {
 	b.SetBytes(8)
 	for i := 0; i < b.N; i++ {
-		Hash(key0, key1, buf[:8])
+		HashG(key0, key1, buf[:8])
 	}
 }
 
 func BenchmarkHash16(b *testing.B) {
 	b.SetBytes(16)
 	for i := 0; i < b.N; i++ {
-		Hash(key0, key1, buf[:16])
+		HashG(key0, key1, buf[:16])
 	}
 }
 
 func BenchmarkHash40(b *testing.B) {
 	b.SetBytes(40)
 	for i := 0; i < b.N; i++ {
-		Hash(key0, key1, buf[:40])
+		HashG(key0, key1, buf[:40])
 	}
 }
 
 func BenchmarkHash64(b *testing.B) {
 	b.SetBytes(64)
 	for i := 0; i < b.N; i++ {
-		Hash(key0, key1, buf[:64])
+		HashG(key0, key1, buf[:64])
 	}
 }
 
 func BenchmarkHash128(b *testing.B) {
 	b.SetBytes(128)
 	for i := 0; i < b.N; i++ {
-		Hash(key0, key1, buf[:128])
+		HashG(key0, key1, buf[:128])
 	}
 }
 
 func BenchmarkHash1K(b *testing.B) {
 	b.SetBytes(1024)
 	for i := 0; i < b.N; i++ {
-		Hash(key0, key1, buf[:1024])
+		HashG(key0, key1, buf[:1024])
 	}
 }
 
 func BenchmarkHash1Kunaligned(b *testing.B) {
 	b.SetBytes(1024)
 	for i := 0; i < b.N; i++ {
-		Hash(key0, key1, buf[1:1025])
+		HashG(key0, key1, buf[1:1025])
 	}
 }
 
 func BenchmarkHash8K(b *testing.B) {
 	b.SetBytes(int64(len(buf)))
 	for i := 0; i < b.N; i++ {
-		Hash(key0, key1, buf)
+		HashG(key0, key1, buf)
 	}
 }
 
 func BenchmarkHash128_8(b *testing.B) {
 	b.SetBytes(8)
 	for i := 0; i < b.N; i++ {
-		Hash128(key0, key1, buf[:8])
+		Hash128G(key0, key1, buf[:8])
 	}
 }
 
 func BenchmarkHash128_16(b *testing.B) {
 	b.SetBytes(16)
 	for i := 0; i < b.N; i++ {
-		Hash128(key0, key1, buf[:16])
+		Hash128G(key0, key1, buf[:16])
 	}
 }
 
 func BenchmarkHash128_40(b *testing.B) {
 	b.SetBytes(40)
 	for i := 0; i < b.N; i++ {
-		Hash128(key0, key1, buf[:40])
+		Hash128G(key0, key1, buf[:40])
 	}
 }
 
 func BenchmarkHash128_64(b *testing.B) {
 	b.SetBytes(64)
 	for i := 0; i < b.N; i++ {
-		Hash128(key0, key1, buf[:64])
+		Hash128G(key0, key1, buf[:64])
 	}
 }
 
 func BenchmarkHash128_128(b *testing.B) {
 	b.SetBytes(128)
 	for i := 0; i < b.N; i++ {
-		Hash128(key0, key1, buf[:128])
+		Hash128G(key0, key1, buf[:128])
 	}
 }
 
 func BenchmarkHash128_1K(b *testing.B) {
 	b.SetBytes(1024)
 	for i := 0; i < b.N; i++ {
-		Hash128(key0, key1, buf[:1024])
+		Hash128G(key0, key1, buf[:1024])
 	}
 }
 
 func BenchmarkHash128_8K(b *testing.B) {
 	b.SetBytes(int64(len(buf)))
 	for i := 0; i < b.N; i++ {
-		Hash128(key0, key1, buf)
+		Hash128G(key0, key1, buf)
 	}
 }
 
